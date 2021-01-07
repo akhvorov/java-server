@@ -22,8 +22,10 @@ public class ClientsRunner {
 //    private final ExecutorService clients;
 
     public static void main(String[] args) throws IOException {
+        System.out.println("Start client");
         ClientsRunner runner = new ClientsRunner();
-        runner.run(Constants.ServerTypes.BLOCKING, 1, 3, 5, 100);
+        Map<String, Double> metrics = runner.run(Constants.ServerTypes.BLOCKING, 2, 3, 5, 100);
+        System.out.println(metrics);
     }
 
 //    enum TimeType {
@@ -48,31 +50,42 @@ public class ClientsRunner {
 //        }
 //    }
 
-    public void run(String serverType, int clientsNum, int queriesNum, int listSize, int delay) throws IOException {
+    public Map<String, Double> run(String serverType, int clientsNum, int queriesNum, int listSize, int delay) throws IOException {
         try (Socket socket = new Socket(Constants.HOST, Constants.STARTER_PORT)) {
             StarterRequest.newBuilder()
                     .setServerType(serverType)
                     .setStart(true)
                     .build()
                     .writeDelimitedTo(socket.getOutputStream());
+            StatResponse.parseDelimitedFrom(socket.getInputStream());
 
             ExecutorService clients = Executors.newFixedThreadPool(clientsNum);
-            List<Future<TimeMeasurer>> times = new ArrayList<>();
+            List<Future<Double>> times = new ArrayList<>();
             for (int i = 0; i < clientsNum; i++) {
-                System.out.println("Create " + i + "-th client");
                 times.add(clients.submit(new Client(Constants.HOST, Constants.PORT, queriesNum, listSize, delay)));
             }
-            for (Future<TimeMeasurer> future : times) {
+
+            double fullTime = 0.0;
+            for (Future<Double> future : times) {
                 try {
-                    future.get();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
+                    fullTime += future.get();
+                } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();
                 }
             }
             clients.shutdown();
-            System.out.println("Success");
+            StarterRequest.newBuilder()
+                    .setServerType(serverType)
+                    .setStart(false)
+                    .build()
+                    .writeDelimitedTo(socket.getOutputStream());
+            StatResponse statResponse = StatResponse.parseDelimitedFrom(socket.getInputStream());
+            assert statResponse != null;
+            Map<String, Double> metrics = new HashMap<>();
+            metrics.put("Handle", statResponse.getHandleTime());
+            metrics.put("Response", statResponse.getResponseTime());
+            metrics.put("Client", fullTime / times.size());
+            return metrics;
         }
     }
 

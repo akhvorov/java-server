@@ -22,12 +22,15 @@ public class BlockingServer extends Server {
         workersThreadPool = Executors.newFixedThreadPool(nThreads);
     }
 
-    public void run() throws IOException {
+    public void run() {
         while (!serverSocket.isClosed()) {
-            System.out.println("Wait for client");
-            Socket socket = serverSocket.accept();
-            System.out.println("Accept client");
-            requestThreadPool.submit(new ServerWorker(socket));
+            Socket socket;
+            try {
+                socket = serverSocket.accept();
+                requestThreadPool.submit(new ServerWorker(socket));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -48,24 +51,18 @@ public class BlockingServer extends Server {
         public void run() {
             while (!socket.isClosed()) {
                 try {
-//                    TimeMeasurer.Timer timer = responseTimeMeasure.startNewTimer();
-                    System.out.println("try get request");
+                    TimeMeasurer.Timer timer = responseTimeMeasure.startNewTimer();
                     List<Integer> list = new ArrayList<>(ArraySortRequest.parseDelimitedFrom(socket.getInputStream()).getValuesList());
-                    System.out.println("get request");
 
                     workersThreadPool.submit(() -> {
-                        System.out.println("try sort");
                         sort(list);
-                        System.out.println("sort");
                         responseThreadPool.submit(() -> {
                             try {
-                                System.out.println("try send response");
                                 ArraySortResponse.newBuilder()
                                         .addAllValues(list)
                                         .build()
                                         .writeDelimitedTo(socket.getOutputStream());
-                                System.out.println("send response");
-//                                timer.stop();
+                                timer.stop();
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }

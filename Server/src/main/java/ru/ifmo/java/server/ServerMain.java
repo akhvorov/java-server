@@ -13,18 +13,23 @@ public class ServerMain {
         System.out.println("Server started");
         try (ServerSocket serverSocket = new ServerSocket(Constants.STARTER_PORT)) {
             while (!serverSocket.isClosed()) {
+                Server server = null;
                 try (Socket socket = serverSocket.accept()) {
-                    StarterRequest starterRequest = StarterRequest.parseDelimitedFrom(socket.getInputStream());
-                    if (starterRequest.getStart()) {
-                        Server server = ServerFactory.createServer(starterRequest.getServerType());
-                        server.run();
-                    } else {
-                        StatResponse statResponse = StatResponse.newBuilder()
-                                .addAllValues(new ArrayList<>())
-                                .setHandleTime(0)
-                                .setResponseTime(0)
-                                .build();
-                        statResponse.writeDelimitedTo(socket.getOutputStream());
+                    while (!socket.isClosed()) {
+                        StarterRequest starterRequest = StarterRequest.parseDelimitedFrom(socket.getInputStream());
+                        if (starterRequest.getStart()) {
+                            server = ServerFactory.createServer(starterRequest.getServerType());
+                            server.start();
+                            StatResponse.newBuilder().build().writeDelimitedTo(socket.getOutputStream());
+                        } else {
+                            assert server != null;
+                            StatResponse.newBuilder()
+                                    .addAllValues(new ArrayList<>())
+                                    .setHandleTime(server.getHandleTime(-1))
+                                    .setResponseTime(server.getResponseTime(-1))
+                                    .build()
+                                    .writeDelimitedTo(socket.getOutputStream());
+                        }
                     }
                 }
             }

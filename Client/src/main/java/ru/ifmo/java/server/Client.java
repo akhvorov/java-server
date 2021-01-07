@@ -10,7 +10,7 @@ import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 
-public class Client implements Callable<TimeMeasurer> {
+public class Client implements Callable<Double> {
     private final String host;
     private final int port;
 
@@ -19,10 +19,8 @@ public class Client implements Callable<TimeMeasurer> {
     private final int delay;
 
     private static final Random random = new Random();
-//    private final TimeMeasurer timeMeasurer;
 
     public Client(String host, int port, int queriesNum, int listSize, int delay) {
-//        this.timeMeasurer = timeMeasurer;
         this.host = host;
         this.port = port;
         this.queriesNum = queriesNum;
@@ -30,23 +28,18 @@ public class Client implements Callable<TimeMeasurer> {
         this.delay = delay;
     }
 
-    public TimeMeasurer call() throws IOException {
+    public Double call() throws IOException {
         TimeMeasurer timeMeasurer = new TimeMeasurer();
-//        TimeMeasurer.Timer timer = timeMeasurer.startNewTimer();
-        System.out.println("In client call");
+        TimeMeasurer.Timer timer = timeMeasurer.startNewTimer();
         try (Socket socket = new Socket(host, port)) {
-            System.out.println("Create socket");
             for (int i = 0; i < queriesNum; i++) {
                 List<Integer> array = random.ints().limit(listSize).boxed().collect(Collectors.toList());
-                System.out.println("try send " + i + "-th request");
                 ArraySortRequest.newBuilder()
                         .addAllValues(array)
                         .build()
                         .writeDelimitedTo(socket.getOutputStream());
-                System.out.println("send " + i + "-th request");
                 ArraySortResponse response = ArraySortResponse.parseDelimitedFrom(socket.getInputStream());
                 assert response != null;
-                System.out.println("get " + i + "-th responce");
                 try {
                     Thread.sleep(delay);
                 } catch (InterruptedException e) {
@@ -54,7 +47,7 @@ public class Client implements Callable<TimeMeasurer> {
                 }
             }
         }
-//        timer.stop();
-        return timeMeasurer;
+        timer.stop();
+        return timeMeasurer.score();
     }
 }

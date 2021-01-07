@@ -1,11 +1,10 @@
 package ru.ifmo.java.server;
 
 import java.io.*;
-import java.util.Collections;
 import java.util.List;
 
-public abstract class Server implements Closeable {
-//    protected Thread serverThread = new Thread(this);
+public abstract class Server implements Runnable, Closeable {
+    protected Thread serverThread = new Thread(this);
     protected TimeMeasurer handleTimeMeasure = new TimeMeasurer();
     protected TimeMeasurer responseTimeMeasure = new TimeMeasurer();
     protected int port;
@@ -14,16 +13,14 @@ public abstract class Server implements Closeable {
         this.port = port;
     }
 
-    public abstract void run() throws IOException;
+    public void start() {
+        serverThread.start();
+    }
 
     protected void sort(List<Integer> list) {
-//        TimeMeasurer.Timer timer = handleTimeMeasure.startNewTimer();
-        System.out.println("before sort");
-        System.out.println(list);
+        TimeMeasurer.Timer timer = handleTimeMeasure.startNewTimer();
         list.sort(null);
-        System.out.println("After sort");
-        System.out.println(list);
-//        timer.stop();
+        timer.stop();
     }
 
     public double getHandleTime(double defaultScore) {
