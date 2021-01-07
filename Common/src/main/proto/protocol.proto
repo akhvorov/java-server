@@ -1,15 +1,17 @@
 syntax = "proto3";
+option java_multiple_files = true;
 
 package ru.ifmo.java.server.protocol;
 
-message Config {
+message StarterRequest {
     string serverType = 1;
-    int32 requestsCount = 2;
+    bool start = 2;
+//    int32 requestsCount = 2;
 }
 
 message ArraySortRequest {
-    int32 size = 1;
-    repeated int32 values = 2;
+//    int32 size = 1;
+    repeated int32 values = 1;
 //    string serverType = 2;
 }
 
@@ -17,9 +19,9 @@ message ArraySortResponse {
     repeated int32 values = 1;
 }
 
-message StatRequest {
-    string serverType = 1;
-}
+//message StatRequest {
+//    string serverType = 1;
+//}
 
 message StatResponse {
     repeated int32 values = 1;
