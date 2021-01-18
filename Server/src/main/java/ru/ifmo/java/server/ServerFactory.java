@@ -19,6 +19,8 @@ public class ServerFactory {
     public static Server createServer(String name) throws IOException {
         if (name.equals(Constants.ServerTypes.BLOCKING)) {
             return new BlockingServer(Constants.PORT, Constants.THREADS_NUM);
+        } else if (name.equals(Constants.ServerTypes.NON_BLOCKING)) {
+            return new NIOServer(Constants.PORT, Constants.THREADS_NUM);
         }
         throw new IllegalArgumentException("Unknown server: " + name);
 //        switch (name) {

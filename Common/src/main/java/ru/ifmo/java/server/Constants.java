@@ -12,5 +12,6 @@ public class Constants {
 //    public static String THREADS_NUM = 8;
     static class ServerTypes {
         public static String BLOCKING = "blocking";
+        public static String NON_BLOCKING = "non blocking";
     }
 }
