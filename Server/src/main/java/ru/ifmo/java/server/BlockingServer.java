@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static ru.ifmo.java.server.NetworkIO.readBytes;
+import static ru.ifmo.java.server.NetworkIO.writeBytes;
+
 public class BlockingServer extends Server {
     protected ServerSocket serverSocket;
     private final ExecutorService requestThreadPool = Executors.newCachedThreadPool();
@@ -22,6 +25,7 @@ public class BlockingServer extends Server {
         workersThreadPool = Executors.newFixedThreadPool(nThreads);
     }
 
+    @Override
     public void run() {
         while (!serverSocket.isClosed()) {
             Socket socket;
@@ -37,6 +41,7 @@ public class BlockingServer extends Server {
     @Override
     public void close() throws IOException {
         serverSocket.close();
+        workersThreadPool.shutdown();
     }
 
     class ServerWorker implements Runnable {
@@ -52,16 +57,18 @@ public class BlockingServer extends Server {
             while (!socket.isClosed()) {
                 try {
                     TimeMeasurer.Timer timer = responseTimeMeasure.startNewTimer();
-                    List<Integer> list = new ArrayList<>(ArraySortRequest.parseDelimitedFrom(socket.getInputStream()).getValuesList());
+                    List<Integer> list = new ArrayList<>(
+                            ArraySortRequest.parseFrom(readBytes(socket.getInputStream())).getValuesList()
+                    );
 
                     workersThreadPool.submit(() -> {
                         sort(list);
                         responseThreadPool.submit(() -> {
                             try {
-                                ArraySortResponse.newBuilder()
-                                        .addAllValues(list)
-                                        .build()
-                                        .writeDelimitedTo(socket.getOutputStream());
+                                writeBytes(
+                                        ArraySortResponse.newBuilder().addAllValues(list).build().toByteArray(),
+                                        socket.getOutputStream()
+                                );
                                 timer.stop();
                             } catch (IOException e) {
                                 e.printStackTrace();

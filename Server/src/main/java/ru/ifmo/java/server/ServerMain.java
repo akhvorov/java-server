@@ -17,6 +17,9 @@ public class ServerMain {
                 try (Socket socket = serverSocket.accept()) {
                     while (!socket.isClosed()) {
                         StarterRequest starterRequest = StarterRequest.parseDelimitedFrom(socket.getInputStream());
+                        if (starterRequest == null) {
+                            break;
+                        }
                         if (starterRequest.getStart()) {
                             server = ServerFactory.createServer(starterRequest.getServerType());
                             server.start();

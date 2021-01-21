@@ -9,6 +9,9 @@ import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
+import static ru.ifmo.java.server.NetworkIO.readBytes;
+import static ru.ifmo.java.server.NetworkIO.writeBytes;
+
 
 public class Client implements Callable<Double> {
     private final String host;
@@ -31,14 +34,17 @@ public class Client implements Callable<Double> {
     public Double call() throws IOException {
         TimeMeasurer timeMeasurer = new TimeMeasurer();
         TimeMeasurer.Timer timer = timeMeasurer.startNewTimer();
+        System.out.println("After socket creation");
         try (Socket socket = new Socket(host, port)) {
+            System.out.println("Start send queries");
             for (int i = 0; i < queriesNum; i++) {
                 List<Integer> array = random.ints().limit(listSize).boxed().collect(Collectors.toList());
-                ArraySortRequest.newBuilder()
+                writeBytes(ArraySortRequest.newBuilder()
                         .addAllValues(array)
-                        .build()
-                        .writeDelimitedTo(socket.getOutputStream());
-                ArraySortResponse response = ArraySortResponse.parseDelimitedFrom(socket.getInputStream());
+                        .build().toByteArray(), socket.getOutputStream());
+                System.out.println("Send request");
+                ArraySortResponse response = ArraySortResponse.parseFrom(readBytes(socket.getInputStream()));
+                System.out.println("Get response");
                 assert response != null;
                 try {
                     Thread.sleep(delay);

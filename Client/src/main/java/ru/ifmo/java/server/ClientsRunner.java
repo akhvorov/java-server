@@ -3,8 +3,6 @@ package ru.ifmo.java.server;
 import ru.ifmo.java.server.protocol.StarterRequest;
 import ru.ifmo.java.server.protocol.StatResponse;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -25,6 +23,7 @@ public class ClientsRunner {
         System.out.println("Start client");
         ClientsRunner runner = new ClientsRunner();
         Map<String, Double> metrics = runner.run(Constants.ServerTypes.BLOCKING, 2, 3, 5, 100);
+//        Map<String, Double> metrics = runner.run(Constants.ServerTypes.NON_BLOCKING, 1, 3, 5, 100);
         System.out.println(metrics);
     }
 
@@ -80,6 +79,7 @@ public class ClientsRunner {
                     .build()
                     .writeDelimitedTo(socket.getOutputStream());
             StatResponse statResponse = StatResponse.parseDelimitedFrom(socket.getInputStream());
+            socket.close();
             assert statResponse != null;
             Map<String, Double> metrics = new HashMap<>();
             metrics.put("Handle", statResponse.getHandleTime());
