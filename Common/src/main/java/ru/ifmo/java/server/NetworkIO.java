@@ -7,15 +7,13 @@ import java.nio.ByteBuffer;
 
 public class NetworkIO {
     public static byte[] readBytes(InputStream inputStream) throws IOException {
-        byte[] s = new byte[4];
+        byte[] sizeBytes = new byte[4];
         int readedBytes = 0;
         while (readedBytes != 4) {
-            readedBytes += inputStream.read(s, readedBytes, s.length - readedBytes);
+            readedBytes += inputStream.read(sizeBytes, readedBytes, sizeBytes.length - readedBytes);
+            assert readedBytes > sizeBytes.length;
         }
-        int size = 0;
-        for (byte b : s) {
-            size = size * 256 + b;
-        }
+        int size = ByteBuffer.wrap(sizeBytes).getInt();
         System.out.println("Read " + size + " bytes");
         byte[] bytes = new byte[size];
         int processed = 0;

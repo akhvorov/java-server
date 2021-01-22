@@ -33,11 +33,11 @@ public class Client implements Callable<Double> {
 
     public Double call() throws IOException {
         TimeMeasurer timeMeasurer = new TimeMeasurer();
-        TimeMeasurer.Timer timer = timeMeasurer.startNewTimer();
         System.out.println("After socket creation");
         try (Socket socket = new Socket(host, port)) {
             System.out.println("Start send queries");
             for (int i = 0; i < queriesNum; i++) {
+                TimeMeasurer.Timer timer = timeMeasurer.startNewTimer();
                 List<Integer> array = random.ints().limit(listSize).boxed().collect(Collectors.toList());
                 writeBytes(ArraySortRequest.newBuilder()
                         .addAllValues(array)
@@ -51,9 +51,9 @@ public class Client implements Callable<Double> {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+                timer.stop();
             }
         }
-        timer.stop();
         return timeMeasurer.score();
     }
 }

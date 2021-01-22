@@ -23,7 +23,7 @@ public class ClientsRunner {
         System.out.println("Start client");
         ClientsRunner runner = new ClientsRunner();
 //        Map<String, Double> metrics = runner.run(Constants.ServerTypes.BLOCKING, 2, 3, 5, 100);
-        Map<String, Double> metrics = runner.run(Constants.ServerTypes.NON_BLOCKING, 2, 3, 5, 100);
+        Map<String, Double> metrics = runner.run(Constants.ServerTypes.NON_BLOCKING, 7, 20, 50, 100);
         System.out.println(metrics);
     }
 
