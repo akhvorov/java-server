@@ -22,8 +22,8 @@ public class ClientsRunner {
     public static void main(String[] args) throws IOException {
         System.out.println("Start client");
         ClientsRunner runner = new ClientsRunner();
-        Map<String, Double> metrics = runner.run(Constants.ServerTypes.BLOCKING, 2, 3, 5, 100);
-//        Map<String, Double> metrics = runner.run(Constants.ServerTypes.NON_BLOCKING, 1, 3, 5, 100);
+//        Map<String, Double> metrics = runner.run(Constants.ServerTypes.BLOCKING, 2, 3, 5, 100);
+        Map<String, Double> metrics = runner.run(Constants.ServerTypes.NON_BLOCKING, 2, 3, 5, 100);
         System.out.println(metrics);
     }
 

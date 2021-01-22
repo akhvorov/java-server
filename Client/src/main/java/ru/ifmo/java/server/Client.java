@@ -42,7 +42,7 @@ public class Client implements Callable<Double> {
                 writeBytes(ArraySortRequest.newBuilder()
                         .addAllValues(array)
                         .build().toByteArray(), socket.getOutputStream());
-                System.out.println("Send request");
+                System.out.println("Send request of len " + array.size());
                 ArraySortResponse response = ArraySortResponse.parseFrom(readBytes(socket.getInputStream()));
                 System.out.println("Get response");
                 assert response != null;
