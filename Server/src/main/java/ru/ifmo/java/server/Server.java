@@ -1,22 +1,25 @@
 package ru.ifmo.java.server;
 
 import java.io.*;
-import java.util.Collections;
 import java.util.List;
 
-public abstract class Server implements Closeable, Runnable {
+public abstract class Server implements Runnable, Closeable {
     protected Thread serverThread = new Thread(this);
     protected TimeMeasurer handleTimeMeasure = new TimeMeasurer();
     protected TimeMeasurer responseTimeMeasure = new TimeMeasurer();
     protected int port;
 
-    public void start(int port) throws IOException {
+    public Server(int port) {
         this.port = port;
+    }
+
+    public void start() {
+        serverThread.start();
     }
 
     protected void sort(List<Integer> list) {
         TimeMeasurer.Timer timer = handleTimeMeasure.startNewTimer();
-        Collections.sort(list);
+        list.sort(null);
         timer.stop();
     }
 
