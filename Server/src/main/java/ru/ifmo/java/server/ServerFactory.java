@@ -3,15 +3,6 @@ package ru.ifmo.java.server;
 import java.io.IOException;
 
 public class ServerFactory {
-//    public static final String BLOCKING = "blocking server";
-//    public static final String THREAD_PER_CONNECTION_SERVER = "Thread per connection server";
-//    public static final String THREAD_POOL = "Thread pool server";
-//    public static final String NON_BLOCKING = "Non blocking server";
-//    public static final Set<String> SERVER_TYPES = new LinkedHashSet<>(Arrays.asList(
-//            NEW_THREAD
-//            THREAD_PER_CONNECTION_SERVER, THREAD_POOL, NON_BLOCKING
-//    ));
-
     private ServerFactory() {
     }
 
@@ -20,6 +11,8 @@ public class ServerFactory {
             return new BlockingServer(Constants.PORT, Constants.THREADS_NUM);
         } else if (name.equals(Constants.ServerTypes.NON_BLOCKING)) {
             return new NonBlockingServer(Constants.PORT, Constants.THREADS_NUM);
+        } else if (name.equals(Constants.ServerTypes.ASYNCHRONOUS)) {
+            return new AsyncServer(Constants.PORT, Constants.THREADS_NUM);
         }
         throw new IllegalArgumentException("Unknown server: " + name);
 //        switch (name) {

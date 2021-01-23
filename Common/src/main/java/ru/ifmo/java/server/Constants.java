@@ -9,9 +9,9 @@ public class Constants {
 
     public static int THREADS_NUM = 8;
 
-//    public static String THREADS_NUM = 8;
     static class ServerTypes {
         public static String BLOCKING = "blocking";
         public static String NON_BLOCKING = "non blocking";
+        public static String ASYNCHRONOUS = "asynchronous";
     }
 }
