@@ -33,19 +33,22 @@ public class Client implements Callable<Double> {
 
     public Double call() throws IOException {
         TimeMeasurer timeMeasurer = new TimeMeasurer();
-        System.out.println("After socket creation");
+//        System.out.println("After socket creation");
         try (Socket socket = new Socket(host, port)) {
-            System.out.println("Start send queries");
+//            System.out.println("Start send queries");
             for (int i = 0; i < queriesNum; i++) {
                 TimeMeasurer.Timer timer = timeMeasurer.startNewTimer();
                 List<Integer> array = random.ints().limit(listSize).boxed().collect(Collectors.toList());
+//                System.out.println("Send " + i + "/" + queriesNum);
                 writeBytes(ArraySortRequest.newBuilder()
                         .addAllValues(array)
                         .build().toByteArray(), socket.getOutputStream());
-                System.out.println("Send request of len " + array.size());
+//                System.out.println("Send request of len " + array.size());
                 ArraySortResponse response = ArraySortResponse.parseFrom(readBytes(socket.getInputStream()));
-                System.out.println("Get response");
+//                System.out.println("Get response");
                 assert response != null;
+                array.sort(null);
+                assert array.equals(response.getValuesList());
                 try {
                     Thread.sleep(delay);
                 } catch (InterruptedException e) {

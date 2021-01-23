@@ -14,4 +14,10 @@ public class Constants {
         public static String NON_BLOCKING = "non blocking";
         public static String ASYNCHRONOUS = "asynchronous";
     }
+
+    static class Metric {
+        public static String CLIENT = "Client";
+        public static String RESPONSE = "Response";
+        public static String HANDLE = "Handle";
+    }
 }

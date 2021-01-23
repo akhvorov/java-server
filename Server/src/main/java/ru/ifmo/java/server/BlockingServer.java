@@ -28,9 +28,7 @@ public class BlockingServer extends Server {
     @Override
     public void run() {
         while (!serverSocket.isClosed()) {
-            Socket socket;
-            try {
-                socket = serverSocket.accept();
+            try (Socket socket = serverSocket.accept()) {
                 requestThreadPool.submit(new ServerWorker(socket));
             } catch (IOException e) {
                 e.printStackTrace();
@@ -42,6 +40,7 @@ public class BlockingServer extends Server {
     public void close() throws IOException {
         serverSocket.close();
         workersThreadPool.shutdown();
+        requestThreadPool.shutdown();
     }
 
     class ServerWorker implements Runnable {

@@ -31,16 +31,19 @@ public class NonBlockingServer extends Server {
     public void run() {
         try {
             serverSocketChannel = ServerSocketChannel.open();  // blocking
-            serverSocketChannel.socket().bind(new InetSocketAddress(port));
+//            serverSocketChannel.socket().bind(new InetSocketAddress(port));
+            serverSocketChannel.bind(new InetSocketAddress(port));
 //            serverSocketChannel.configureBlocking(false);  // non blocking
             while (true) {
                 SocketChannel socketChannel = serverSocketChannel.accept();
                 socketChannel.configureBlocking(false);
                 Client client = new Client(socketChannel);
-                socketChannel.register(readSelector, SelectionKey.OP_READ, client);
+//                synchronized (readSelector) {
+                    socketChannel.register(readSelector, SelectionKey.OP_READ, client);
 //                socketChannel.register(writeSelector, SelectionKey.OP_WRITE, client);
-                readSelector.wakeup();
+                    readSelector.wakeup();
 //                writeSelector.wakeup();
+//                }
             }
         } catch (IOException e) {
             e.printStackTrace();

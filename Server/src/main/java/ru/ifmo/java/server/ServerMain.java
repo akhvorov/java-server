@@ -32,6 +32,9 @@ public class ServerMain {
                                     .setResponseTime(server.getResponseTime(-1))
                                     .build()
                                     .writeDelimitedTo(socket.getOutputStream());
+                            server.close();
+                            socket.close();
+                            System.out.println("Close server");
                         }
                     }
                 }

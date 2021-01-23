@@ -14,7 +14,7 @@ public class NetworkIO {
             assert readedBytes > sizeBytes.length;
         }
         int size = ByteBuffer.wrap(sizeBytes).getInt();
-        System.out.println("Read " + size + " bytes");
+//        System.out.println("Read " + size + " bytes");
         byte[] bytes = new byte[size];
         int processed = 0;
         while (processed < size) {
@@ -28,8 +28,6 @@ public class NetworkIO {
         buffer.putInt(request.length);
         buffer.put(request);
         outputStream.write(buffer.array());
-//        outputStream.write(request.length);
-//        outputStream.write(request);
         outputStream.flush();
     }
 }
