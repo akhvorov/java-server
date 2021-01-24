@@ -15,7 +15,7 @@ import static ru.ifmo.java.server.NetworkIO.readBytes;
 import static ru.ifmo.java.server.NetworkIO.writeBytes;
 
 public class BlockingServer extends Server {
-    protected ServerSocket serverSocket;
+    private final ServerSocket serverSocket;
     private final ExecutorService requestThreadPool = Executors.newCachedThreadPool();
     private final ExecutorService workersThreadPool;
 
@@ -28,7 +28,8 @@ public class BlockingServer extends Server {
     @Override
     public void run() {
         while (!serverSocket.isClosed()) {
-            try (Socket socket = serverSocket.accept()) {
+            try {
+                Socket socket = serverSocket.accept();
                 requestThreadPool.submit(new ServerWorker(socket));
             } catch (IOException e) {
                 e.printStackTrace();
