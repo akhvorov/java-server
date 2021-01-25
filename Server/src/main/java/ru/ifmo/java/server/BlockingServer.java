@@ -32,7 +32,7 @@ public class BlockingServer extends Server {
                 Socket socket = serverSocket.accept();
                 requestThreadPool.submit(new ServerWorker(socket));
             } catch (IOException e) {
-                e.printStackTrace();
+
             }
         }
     }

@@ -23,7 +23,6 @@ public class AsyncServer extends Server {
     public AsyncServer(int port, int nThreads) {
         super(port);
         workersThreadPool = Executors.newFixedThreadPool(nThreads);
-        System.out.println("Server run");
         try {
             serverSocketChannel = AsynchronousServerSocketChannel.open();
             serverSocketChannel.bind(new InetSocketAddress(port));
@@ -36,20 +35,15 @@ public class AsyncServer extends Server {
     public void run() {
         try {
             while (true) {
-                System.out.println("Wait for accept");
                 Future<AsynchronousSocketChannel> future = serverSocketChannel.accept();
                 AsynchronousSocketChannel socketChannel = future.get();
-                System.out.println("Accepted");
                 Client client = new Client(socketChannel);
-                System.out.println("New client");
                 socketChannel.read(client.inputBuffer, client, new CompletionHandler<Integer, Client>() {
                     @Override
                     public void completed(Integer result, Client attachment) {
-                        System.out.println("Completed " + result);
                         if (attachment.process(result)) {
                             socketChannel.read(client.inputBuffer, client, this);
                         }
-                        System.out.println("End reading");
                     }
 
                     @Override
@@ -119,7 +113,6 @@ public class AsyncServer extends Server {
 
             @Override
             public void run() {
-                System.out.println("Run task");
                 List<Integer> list = new ArrayList<>(arraySortRequest.getValuesList());
                 sort(list);
                 ArraySortResponse response = ArraySortResponse.newBuilder().addAllValues(list).build();
@@ -133,7 +126,6 @@ public class AsyncServer extends Server {
                         if (outBuffer.hasRemaining()) {
                             socketChannel.write(outBuffer, Task.this, this);
                         } else {
-                            System.out.println("End task");
                             timer.stop();
                         }
                     }

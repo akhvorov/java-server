@@ -15,12 +15,14 @@ public class ServerMain {
             while (!serverSocket.isClosed()) {
                 Server server = null;
                 try (Socket socket = serverSocket.accept()) {
+                    System.out.println("Accept connection");
                     while (!socket.isClosed()) {
                         StarterRequest starterRequest = StarterRequest.parseDelimitedFrom(socket.getInputStream());
                         if (starterRequest == null) {
                             break;
                         }
                         if (starterRequest.getStart()) {
+                            System.out.println("Create new server");
                             server = ServerFactory.createServer(starterRequest.getServerType());
                             server.start();
                             StatResponse.newBuilder().build().writeDelimitedTo(socket.getOutputStream());
@@ -33,48 +35,12 @@ public class ServerMain {
                                     .build()
                                     .writeDelimitedTo(socket.getOutputStream());
                             server.close();
-                            socket.close();
                             System.out.println("Close server");
+                            break;
                         }
                     }
                 }
             }
         }
     }
-
-//    public static void main(String[] args) throws IOException {
-//        ServerSocket serverSocket = new ServerSocket(PORT);
-//        while (!serverSocket.isClosed()) {
-//            Socket socket = serverSocket.accept();
-//            try (DataInputStream inputStream = new DataInputStream(socket.getInputStream());
-//                 DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream())) {
-//                Protocol.Config config = Protocol.Config.parseDelimitedFrom(inputStream);
-//                final Server server;
-//                if (ServerFactory.SERVER_TYPES.contains(config.getServerType()) && config.getRequestsCount() > 0) {
-//                    server = ServerFactory.createServer(config.getServerType());
-//                } else {
-//                    continue;
-//                }
-//                server.start(SERVER_PORT);
-//
-//                config = Protocol.Config.parseDelimitedFrom(inputStream);
-//                server.close();
-//                if (config.getRequestsCount() == 0) {
-//                    double defaultTime = -0.03;
-//                    if (config.getServerType().equals(ServerFactory.THREAD_PER_CONNECTION_SERVER)) {
-//                        defaultTime = -0.01;
-//                    } else if (config.getServerType().equals(ServerFactory.THREAD_POOL)) {
-//                        defaultTime = -0.02;
-//                    }
-////                    System.out.println("Times: " + handleTime + " " + responseTime);
-//                    Protocol.StatResponse.newBuilder()
-//                            .setHandleTime(server.getHandleTime(defaultTime))
-//                            .setResponseTime(server.getResponseTime(defaultTime))
-//                            .build()
-//                            .writeDelimitedTo(outputStream);
-//                }
-//            }
-//        }
-//        serverSocket.close();
-//    }
 }
