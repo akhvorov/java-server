@@ -1,7 +1,7 @@
 package ru.ifmo.java.server;
 
 public class Constants {
-    public static String HOST = "localhost";
+    public static String HOST = "localhost";  // 192.168.0.49 (59)
     public static int STARTER_PORT = 4444;
     public static int PORT = 4445;
 //    sudo lsof -i :4446

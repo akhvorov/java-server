@@ -17,7 +17,7 @@ public class NonBlockingServer extends Server {
     private final Selector writeSelector;
     private final ExecutorService selectorPool = Executors.newSingleThreadExecutor();
     private final ExecutorService workersThreadPool;
-    private ServerSocketChannel serverSocketChannel;
+    private final ServerSocketChannel serverSocketChannel;
 
     public NonBlockingServer(int port, int nThreads) throws IOException {
         super(port);
@@ -25,33 +25,33 @@ public class NonBlockingServer extends Server {
         writeSelector = Selector.open();
         workersThreadPool = Executors.newFixedThreadPool(nThreads);
         selectorPool.submit(new IOWorker());
+
+        serverSocketChannel = ServerSocketChannel.open();  // blocking
+//            serverSocketChannel.socket().bind(new InetSocketAddress(port));
+        serverSocketChannel.bind(new InetSocketAddress(port));
+//            serverSocketChannel.configureBlocking(false);  // non blocking
     }
 
     @Override
     public void run() {
-        try {
-            serverSocketChannel = ServerSocketChannel.open();  // blocking
-//            serverSocketChannel.socket().bind(new InetSocketAddress(port));
-            serverSocketChannel.bind(new InetSocketAddress(port));
-//            serverSocketChannel.configureBlocking(false);  // non blocking
-            while (true) {
+        while (serverSocketChannel.isOpen()) {
+            try {
                 SocketChannel socketChannel = serverSocketChannel.accept();
                 socketChannel.configureBlocking(false);
                 Client client = new Client(socketChannel);
-//                synchronized (readSelector) {
                     socketChannel.register(readSelector, SelectionKey.OP_READ, client);
-//                socketChannel.register(writeSelector, SelectionKey.OP_WRITE, client);
+    //                socketChannel.register(writeSelector, SelectionKey.OP_WRITE, client);
                     readSelector.wakeup();
-//                writeSelector.wakeup();
-//                }
+    //                writeSelector.wakeup();
+            } catch (IOException e) {
+//                e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
     @Override
     public void close() throws IOException {
+        serverThread.interrupt();
         workersThreadPool.shutdown();
         selectorPool.shutdown();
         serverSocketChannel.close();

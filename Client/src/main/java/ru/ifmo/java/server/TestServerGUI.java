@@ -201,7 +201,7 @@ public class TestServerGUI {
         List<String> metrics = Arrays.asList(Constants.Metric.CLIENT, Constants.Metric.RESPONSE, Constants.Metric.HANDLE);
         ClientsRunner clientsRunner = new ClientsRunner();
         for (String serverType : Arrays.asList(
-//                Constants.ServerTypes.BLOCKING,
+                Constants.ServerTypes.BLOCKING,
                 Constants.ServerTypes.NON_BLOCKING,
                 Constants.ServerTypes.ASYNCHRONOUS
                 )

@@ -20,6 +20,9 @@ public class ClientsRunner {
         Map<String, Double> metrics = runner.run(Constants.ServerTypes.BLOCKING, 7, 20, 50, 100, Constants.HOST);
 //        Map<String, Double> metrics = runner.run(Constants.ServerTypes.NON_BLOCKING, 7, 20, 50, 100, Constants.HOST);
 //        Map<String, Double> metrics = runner.run(Constants.ServerTypes.ASYNCHRONOUS, 7, 20, 50, 100, Constants.HOST);
+
+        runner.run(Constants.ServerTypes.NON_BLOCKING, 7, 20, 50, 100, Constants.HOST);
+//        runner.run(Constants.ServerTypes.ASYNCHRONOUS, 7, 20, 50, 100, Constants.HOST);
         System.out.println(metrics);
     }
 
@@ -53,7 +56,6 @@ public class ClientsRunner {
                     .build()
                     .writeDelimitedTo(socket.getOutputStream());
             StatResponse statResponse = StatResponse.parseDelimitedFrom(socket.getInputStream());
-            socket.close();
             assert statResponse != null;
             Map<String, Double> metrics = new HashMap<>();
             metrics.put(HANDLE, statResponse.getHandleTime());
